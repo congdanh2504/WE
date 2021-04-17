@@ -130,7 +130,7 @@ public class MainActivity implements ActionListener, TreeSelectionListener, Mous
 	    		          disk.setUserObject(drv);
 	    		          this.add(disk);
 		  		  	}
-	    			this.setUserObject(new File("C:\\Users\\Admin\\OneDrive\\Desktop"));
+	    			this.setUserObject(new File("ThisPC"));
 	    		}
 	    	}
 	    ));	    
@@ -146,6 +146,7 @@ public class MainActivity implements ActionListener, TreeSelectionListener, Mous
 		panel.setBackground(Color.WHITE);
 		bottom.add(panel,BorderLayout.NORTH);
 		panel.setLayout(new BorderLayout(0, 0));
+		
 		btnBack = new JButton();
 		btnBack.setIcon(new ImageIcon("backt.png"));
 		btnBack.setFocusable(false);
@@ -153,6 +154,7 @@ public class MainActivity implements ActionListener, TreeSelectionListener, Mous
 		btnPre.setIcon(new ImageIcon("pre.png"));
 		btnPre.setBackground(Color.WHITE);
 		btnPre.setFocusable(false);
+		
 		JPanel btn = new JPanel();
 		btn.setBackground(Color.WHITE);
 		btn.setLayout(new FlowLayout());
@@ -160,11 +162,13 @@ public class MainActivity implements ActionListener, TreeSelectionListener, Mous
 		btn.add(btnPre);
 		btnBack.setBackground(Color.WHITE);
 		panel.add(btn,BorderLayout.WEST);
+		
 		address = new JLabel();
 		address.setForeground(Color.BLACK);
 		address.setOpaque(true);
 		address.setBackground(Color.WHITE);
 		address.setFont(new Font("Dialog", Font.BOLD, 12));
+		
 		progressBar = new JProgressBar();
 		panel.add(progressBar, BorderLayout.EAST);
         progressBar.setVisible(false);
@@ -223,11 +227,9 @@ public class MainActivity implements ActionListener, TreeSelectionListener, Mous
 		try  {      
 			File f= new File(path);
 			if (f.isFile()) {
-				if(f.delete()) {  
-    			}  
-    			else  {  
-    				JOptionPane.showMessageDialog(null, "Failed");  
-    			}  
+				if(!f.delete()) {  
+					JOptionPane.showMessageDialog(null, "Failed");  
+    			}   
 			} else if (f.isDirectory()) {
 				deleteDir(f);
 			}		
@@ -249,7 +251,7 @@ public class MainActivity implements ActionListener, TreeSelectionListener, Mous
 	public void paste() {
 		File file = pathtemp;
 		if (iscut) {
-			if (file.isFile()) cutaFile(file);
+			if (file.isFile()) cutaFile(file,new File(backpath.peek()+"\\"+pathtemp.getName()));
 			if (file.isDirectory()) {
 				String source = pathtemp.getAbsolutePath();
 				String target = backpath.peek()+"\\"+pathtemp.getName();
@@ -322,45 +324,14 @@ public class MainActivity implements ActionListener, TreeSelectionListener, Mous
         }
 	}
 	
-	void cutaFile(File file) {
-		InputStream inStream = null;
-        OutputStream outStream = null;
- 
-        try {
-            inStream = new FileInputStream(file);
-            outStream = new FileOutputStream(new File(backpath.peek()+"\\"+pathtemp.getName()));	 
-            int length;
-            byte[] buffer = new byte[1024];
-            while ((length = inStream.read(buffer)) > 0) {
-                outStream.write(buffer, 0, length);
-            }
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        } finally {
-            try {
-				inStream.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-            try {
-				outStream.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
-        }
-        try  {         
-			File f= pathtemp;  
-			if (f.isFile()) {
-				if(f.delete()) {  
-					
-    			}  
-    			else  {  
-    				JOptionPane.showMessageDialog(null, "Failed");  
-    			}  
-			} else if (f.isDirectory()) {
-				
-			}
-			
+	void cutaFile(File file, File output) {
+		 try  {  
+			copyaFile(file, output);              
+			if (file.isFile()) {
+				if(!file.delete()) {  		
+					JOptionPane.showMessageDialog(null, "Failed");  
+				}   
+			}	
 		}  
 		catch(Exception e1)  {  
 			e1.printStackTrace();  
@@ -382,7 +353,6 @@ public class MainActivity implements ActionListener, TreeSelectionListener, Mous
 				}  
 				if (file.isDirectory()) {
 					execute("list", path);
-					//listFile(path);
 				}
 			} 
 			catch(Exception e1)  {  
@@ -473,6 +443,7 @@ public class MainActivity implements ActionListener, TreeSelectionListener, Mous
 			DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
 			if (node.getParent()!=null) {
 				File fi = (File)node.getUserObject();
+				
 				String path = fi.getAbsolutePath();
 			    read(node,path);
 			    execute("list", path);	
